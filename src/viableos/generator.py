@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from viableos.budget import calculate_budget, get_fallback_chain, get_heartbeat_model
+from viableos.q2m_skill import q2m_skill_appendix
 from viableos.coordination import (
     generate_agent_communication_matrix,
     generate_base_rules,
@@ -34,6 +35,17 @@ from viableos.soul_templates import (
 
 def _slugify(name: str) -> str:
     return name.lower().replace(" ", "-").replace("&", "and")
+
+
+def _append_q2m_skill(
+    workspace: Path, viable_system: dict[str, Any], role: str,
+    unit: dict[str, Any] | None = None,
+) -> None:
+    """Append Q2M instructions only when its workstream and role are enabled."""
+    appendix = q2m_skill_appendix(viable_system, role, unit)
+    if appendix:
+        skill_path = workspace / "SKILL.md"
+        skill_path.write_text(skill_path.read_text() + appendix)
 
 
 def _make_agent_entry(
@@ -725,6 +737,7 @@ def generate_openclaw_package(
         )
         (ws_path / "SOUL.md").write_text(soul)
         (ws_path / "SKILL.md").write_text(_generate_s1_skill(unit, identity))
+        _append_q2m_skill(ws_path, vs, "s1", unit)
         (ws_path / "HEARTBEAT.md").write_text(
             _generate_s1_heartbeat(unit, operational_modes=operational_modes)
         )
@@ -777,6 +790,7 @@ def generate_openclaw_package(
             transduction_mappings=transduction_mappings,
         )
     )
+    _append_q2m_skill(ws_path, vs, "s2")
     (ws_path / "HEARTBEAT.md").write_text(
         _generate_s2_heartbeat(operational_modes=operational_modes)
     )
@@ -820,6 +834,7 @@ def generate_openclaw_package(
             intervention_authority=s3_cfg.get("intervention_authority"),
         )
     )
+    _append_q2m_skill(ws_path, vs, "s3")
     (ws_path / "HEARTBEAT.md").write_text(
         _generate_s3_heartbeat(operational_modes=operational_modes)
     )
@@ -856,6 +871,7 @@ def generate_openclaw_package(
     )
     (ws_path / "SOUL.md").write_text(soul)
     (ws_path / "SKILL.md").write_text(_generate_s3star_skill())
+    _append_q2m_skill(ws_path, vs, "s3star")
     (ws_path / "HEARTBEAT.md").write_text(
         _generate_s3star_heartbeat(operational_modes=operational_modes)
     )
@@ -897,6 +913,7 @@ def generate_openclaw_package(
             strategy_bridge=s4_cfg.get("strategy_bridge"),
         )
     )
+    _append_q2m_skill(ws_path, vs, "s4")
     (ws_path / "HEARTBEAT.md").write_text(
         _generate_s4_heartbeat(operational_modes=operational_modes)
     )
@@ -925,6 +942,7 @@ def generate_openclaw_package(
     )
     (ws_path / "SOUL.md").write_text(soul)
     (ws_path / "SKILL.md").write_text(_generate_s5_skill())
+    _append_q2m_skill(ws_path, vs, "s5")
     (ws_path / "HEARTBEAT.md").write_text(
         _generate_s5_heartbeat(operational_modes=operational_modes)
     )
